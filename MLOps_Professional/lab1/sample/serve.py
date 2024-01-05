@@ -3,8 +3,9 @@ import logging
 import warnings
 
 from fastapi import FastAPI
-from data_model import MaintenancePayload
+from data_model import MaintenancePayload, SupportBotPayload
 from maintenance import test_maintenance
+from supportbot import test_supportbot
 
 
 app = FastAPI()
@@ -28,8 +29,14 @@ async def ping():
 @app.post("/maintenance")
 async def predict(payload:MaintenancePayload):
     
-    maintenance_result = test_maintenance(payload.temperature)
+    maintenance_result = test_maintenance(payload.temperature, payload.hydrolic_pressure_psi)
     return {"msg": "Completed Analysis", "Maintenance Status": maintenance_result}
+
+@app.post("/supportbot")
+async def predict(payload:SupportBotPayload):
+    
+    supportbot_result = test_supportbot(payload.message)
+    return {"msg": supportbot_result}
 
 if __name__ == "__main__":
     uvicorn.run("serve:app", host="0.0.0.0", port=5000, log_level="info")
